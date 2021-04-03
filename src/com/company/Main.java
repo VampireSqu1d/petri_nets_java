@@ -4,6 +4,13 @@ public class Main {
 
     public static void main(String[] args) {
         // las columnas son los places y los renglones son transiciones en todas las matrices
+        /*
+        *       P1 P2 P3 P4
+        *  T1  0
+        *  T2  1
+        *  T3  0
+        *  T4  1
+        */
         int[][] pos = {
                 {1, 0, 1, 0, 0},
                 {0, 1, 0, 0, 0},
@@ -43,15 +50,20 @@ public class Main {
             }
             vectorCxE[i] = CxE;
         }
+        // aquí se imprimen los arreglos de una dimensión
         imprimirVector(vectorE, "Vector E");
         imprimirVector(vectorCxE, "Vector CxE");
 
         // cada celda representa el número de tokens en cada place
         // se le conoce como marca inicial y se denomina M0
         int[] M0 = {1, 0, 1, 0, 1};
-
+        int[] M1 = new int[M0.length];
+        for (int i = 0; i < M0.length; i++) {
+            M1[i] = M0[i] + vectorCxE[i];
+        }
+        imprimirVector(M0, "vector M0");
+        imprimirVector(M1, "vector M1");
         //int ciclos = 10;
-
     }
 
     // método que imprime cada celda de un arreglo de un a dimensión
@@ -60,7 +72,7 @@ public class Main {
         for (int j : vector) {
             System.out.printf("%d ", j);
         }
-        System.out.println();
+        System.out.print("\n");
     }
     // método que imprime cada celda de la matriz
     private static void imprimirMatriz(int[][] matriz, String nombreMatriz) {
