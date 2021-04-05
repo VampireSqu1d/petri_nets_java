@@ -1,15 +1,20 @@
 package com.company;
 
+import com.google.common.collect.Sets; // https://github.com/google/guava/wiki
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Vector;
+
 public class Main {
 
     public static void main(String[] args) {
         // las columnas son los places y los renglones son transiciones en todas las matrices
         /*
         *       P1 P2 P3 P4
-        *  T1  0
-        *  T2  1
-        *  T3  0
-        *  T4  1
+        *  T1 0
+        *  T2 1
+        *  T3 0
+        *  T4 1
         */
         final int[][] pos = {
                 // esta es una matriz 5x5 se pueden  cambiar de acuerdo a la red de petri
@@ -18,7 +23,6 @@ public class Main {
                 {1, 0, 0, 0, 0},
                 {1, 0, 0, 0, 1},
                 {0, 0, 0, 1, 0} };
-
         final int[][] pre = {
                 // esta es una matriz 5x5 se pueden  cambiar de acuerdo a la red de petri
                 {0, 1, 0, 0, 0},
@@ -26,7 +30,6 @@ public class Main {
                 {0, 0, 0, 1, 0},
                 {0, 0, 0, 1, 0},
                 {1, 0, 0, 0, 1} };
-
         // se inicializa la matriz de incidencia con el mismo largo de la matriz pos
         int[][] incidence = new int[pos.length][pos[0].length];
         // en este loop se hacen las resta de la matriz pre sobre la matriz pos C(t) = pos - pre, y se agregan a la matriz incidence
@@ -41,18 +44,18 @@ public class Main {
         imprimirMatriz(incidence, "matriz de incidencia");
 
         int[] M0 = {1, 0, 1, 0, 1}; // cada celda representa el número de tokens en cada place
-        imprimirVector(M0, "vector M0");
+        imprimirArreglo(M0, "vector M0");
 
-        int[] tpd = new int[incidence.length]; // este vector representa las Transiciones que se Pueden Disparar
-        final int ciclos = 1;
+        final int ciclos = 10;
         int ciclo = 0;
         while (ciclo < ciclos) {
+            int[] tpd = new int[pos.length]; // este vector representa las Transiciones que se Pueden Disparar
             // en este loop se revisan las transiciones disponibles para dispararse
             for (int i = 0; i < incidence.length; i++) {
                 int pre_j = 0;
                 for (int j = 0; j < incidence[0].length; j++) {
-                    if (incidence[i][j] > 0) {
-                        if (M0[j] >= incidence[i][j]) pre_j = 1;
+                    if (pre[j][i] > 0) {
+                        if (M0[j] >= pre[j][i]) pre_j = 1;
                         else {
                             pre_j = 0;
                             break;
@@ -62,16 +65,28 @@ public class Main {
                 if (pre_j > 0) tpd[i] = 1;
                 else tpd[i] = 0;
             }
-            imprimirVector(tpd, "Transiciones que se pueden disparar");
+            imprimirArreglo(tpd, "Transiciones que se pueden disparar");
 
+            Set<Integer> transActivas = new HashSet<>();
+            for (int i = 0; i < tpd.length; i++) {
+                if (tpd[i] > 0) {
+                    transActivas.add(i);
+                }
+            }
+            imprimirSet(transActivas, "Indice de transiciones activas");
+            //System.out.println(transActivas.size());
+            if (transActivas.size() > 0){
+                //Vector<Integer> transActivasLocal = new Vector<>();
+                for (int i = 0; i < transActivas.size(); i++) {
+                    Set<Set<Integer>> tempTransActivas = Sets.combinations(transActivas, i);
+                    //for (Set<Integer> item: tempTransActivas) System.out.println(item);
+                    if (i == 0) {
+                        /*for (int j = 0; j < tempTransActivas.size(); j++) {
 
-
-
-
-
-
-
-
+                        }*/
+                    }
+                }
+            }
 
 
 
@@ -86,7 +101,7 @@ public class Main {
                 }
                 vectorCxE[i] = CxE;
             }
-            imprimirVector(vectorCxE, "Vector CxE");*/
+            imprimirArreglo(vectorCxE, "Vector CxE");*/
 
             // en este loop se calcula M1 = M0 + Cxe1 y se guarda en el vector M0
             /* for (int i = 0; i < M0.length; i++) {
@@ -95,14 +110,21 @@ public class Main {
                     M0[i] = 0;
                 }
             }*/
-            //imprimirVector(M0, "vector M1");
+            //imprimirArreglo(M0, "vector M1");
             ciclo++;
         }
     }
-
+    // método que imprime cada celda de un vector de un a dimensión
+    private static void imprimirSet(Set<Integer> lista, String nombreVector) {
+        System.out.printf("%s: ", nombreVector);
+        for (Integer i: lista){
+            System.out.printf("%d ",i);
+        }
+        System.out.print("\n");
+    }
     // método que imprime cada celda de un arreglo de un a dimensión
-    private static void imprimirVector(int[] vector, String nombreVector){
-        System.out.printf("%s: ",nombreVector);
+    private static void imprimirArreglo(int[] vector, String nombreArreglo){
+        System.out.printf("%s: ",nombreArreglo);
         for (int j : vector) {
             System.out.printf("%d ", j);
         }
