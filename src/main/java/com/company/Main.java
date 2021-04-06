@@ -43,10 +43,10 @@ public class Main {
         imprimirMatriz(pre, "matriz pre");
         imprimirMatriz(incidence, "matriz de incidencia");
 
-        int[] M0 = {1, 0, 1, 0, 1}; // cada celda representa el número de tokens en cada place
+        int[] M0 = {1, 0, 1, 0, 1}; // Esta es la marca inicial de tokens en el modelo, cada celda representa el número de tokens en cada place
         imprimirArreglo(M0, "vector M0");
 
-        final int ciclos = 10;
+        final int ciclos = 1;
         int ciclo = 0;
         while (ciclo < ciclos) {
             int[] tpd = new int[pos.length]; // este vector representa las Transiciones que se Pueden Disparar
@@ -54,8 +54,8 @@ public class Main {
             for (int i = 0; i < incidence.length; i++) {
                 int pre_j = 0;
                 for (int j = 0; j < incidence[0].length; j++) {
-                    if (pre[j][i] > 0) {
-                        if (M0[j] >= pre[j][i]) pre_j = 1;
+                    if (incidence[i][j] > 0) {
+                        if (M0[j] >= incidence[i][j]) pre_j = 1;
                         else {
                             pre_j = 0;
                             break;
@@ -70,22 +70,22 @@ public class Main {
             Set<Integer> transActivas = new HashSet<>();
             for (int i = 0; i < tpd.length; i++) {
                 if (tpd[i] > 0) {
-                    transActivas.add(i);
+                    transActivas.add(i + 1);
                 }
             }
-            imprimirSet(transActivas, "Indice de transiciones activas");
-            //System.out.println(transActivas.size());
+            imprimirSet(transActivas, "Transiciones activas");
+            System.out.println(transActivas.size());
+            Set<Set<Integer>> Combinaciones = new HashSet<>();
             if (transActivas.size() > 0){
-                //Vector<Integer> transActivasLocal = new Vector<>();
-                for (int i = 0; i < transActivas.size(); i++) {
-                    Set<Set<Integer>> tempTransActivas = Sets.combinations(transActivas, i);
-                    //for (Set<Integer> item: tempTransActivas) System.out.println(item);
-                    if (i == 0) {
-                        /*for (int j = 0; j < tempTransActivas.size(); j++) {
+                // en este for se añaden todas las combinaciones de transiciones
+                for (int i = 1; i <= transActivas.size(); i++) Combinaciones.addAll(Sets.combinations(transActivas, i)) ;
 
-                        }*/
-                    }
+                for (int i = 0; i <= Combinaciones.size(); i++) {
+
                 }
+
+            } else {
+                System.out.println("Ya no hay más trnasiciones activas");
             }
 
 
@@ -115,17 +115,17 @@ public class Main {
         }
     }
     // método que imprime cada celda de un vector de un a dimensión
-    private static void imprimirSet(Set<Integer> lista, String nombreVector) {
-        System.out.printf("%s: ", nombreVector);
+    private static void imprimirSet(Set<Integer> lista, String nombreSet) {
+        System.out.printf("%s: ", nombreSet);
         for (Integer i: lista){
             System.out.printf("%d ",i);
         }
         System.out.print("\n");
     }
     // método que imprime cada celda de un arreglo de un a dimensión
-    private static void imprimirArreglo(int[] vector, String nombreArreglo){
+    private static void imprimirArreglo(int[] arreglo, String nombreArreglo){
         System.out.printf("%s: ",nombreArreglo);
-        for (int j : vector) {
+        for (int j : arreglo) {
             System.out.printf("%d ", j);
         }
         System.out.print("\n");
