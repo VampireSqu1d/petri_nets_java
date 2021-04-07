@@ -18,23 +18,24 @@ public class Main {
         */
         final int[][] pos = {
                 // esta es una matriz 5x5 se pueden  cambiar de acuerdo a la red de petri
-                {1, 0, 1, 0, 0},
-                {0, 1, 0, 0, 0},
-                {1, 0, 0, 0, 0},
-                {1, 0, 0, 0, 1},
-                {0, 0, 0, 1, 0} };
-        final int[][] pre = {
-                // esta es una matriz 5x5 se pueden  cambiar de acuerdo a la red de petri
                 {0, 1, 0, 0, 0},
                 {1, 0, 1, 0, 0},
                 {0, 0, 0, 1, 0},
                 {0, 0, 0, 1, 0},
                 {1, 0, 0, 0, 1} };
+
+        final int[][] pre = {
+                // esta es una matriz 5x5 se pueden  cambiar de acuerdo a la red de petri
+                {1, 0, 1, 0, 0},
+                {0, 1, 0, 0, 0},
+                {1, 0, 0, 0, 0},
+                {1, 0, 0, 0, 1},
+                {0, 0, 0, 1, 0} };
         // se inicializa la matriz de incidencia con el mismo largo de la matriz pos
         int[][] incidence = new int[pos.length][pos[0].length];
         // en este loop se hacen las resta de la matriz pre sobre la matriz pos C(t) = pos - pre, y se agregan a la matriz incidence
         for (int i = 0; i < pos.length; i++) {
-            for (int j = 0; j < pos[i].length; j++) {
+            for (int j = 0; j < pos[0].length; j++) {
                 incidence[i][j] = pos[i][j] - pre[i][j];
             }
         }
@@ -46,7 +47,7 @@ public class Main {
         int[] M0 = {1, 0, 1, 0, 1}; // Esta es la marca inicial de tokens en el modelo, cada celda representa el número de tokens en cada place
         imprimirArreglo(M0, "vector M0");
 
-        final int ciclos = 1;
+        final int ciclos = 10;
         int ciclo = 0;
         while (ciclo < ciclos) {
             int[] tpd = new int[pos.length]; // este vector representa las Transiciones que se Pueden Disparar
@@ -54,8 +55,8 @@ public class Main {
             for (int i = 0; i < incidence.length; i++) {
                 int pre_j = 0;
                 for (int j = 0; j < incidence[0].length; j++) {
-                    if (incidence[i][j] > 0) {
-                        if (M0[j] >= incidence[i][j]) pre_j = 1;
+                    if (pre[i][j] > 0) {
+                        if (M0[j] >= pre[i][j]) pre_j = 1;
                         else {
                             pre_j = 0;
                             break;
@@ -97,22 +98,45 @@ public class Main {
                         }
                         vectorCxE[i] = CxE;
                     }
+                    //imprimirArreglo(vectorCxE, "vector CxE temporal");
                     for (int i = 0; i < transTemp.length; i++) {
                         M1[i] = M0[i] + vectorCxE[i];
                     }
+                    //imprimirArreglo(M1, "M1 temporal");
                     boolean HayNegativo = IntStream.range(0, M1.length).anyMatch(i -> M1[i] < 0);// aqui se checa por negativos en alguna celda del arreglo
-                    if (!HayNegativo) CombinacionesFiltradas.add(M1);// aquí se añaden los arreglos que no producen negativos
+                    if (!HayNegativo) CombinacionesFiltradas.add(transTemp);// aquí se añaden los arreglos que no producen negativos
                 }
+                //for (int[] i : CombinacionesFiltradas) System.out.println(Arrays.toString(i));
                  // aquí se elige una transicion de forma aleatoria
+                if (CombinacionesFiltradas.size() > 0) {
+                    int aleatorio = (int) (Math.random() * (CombinacionesFiltradas.size() - 1));
+                    int[] elegida = CombinacionesFiltradas.get(aleatorio);
+                    System.out.println(aleatorio);
+                    int[] c = new int[incidence[0].length];
+                    for (int i = 0; i < incidence.length; i++) {
+                        int CxE = 0;
+                        for (int j = 0; j < incidence[0].length; j++) {
+                            CxE = CxE + (incidence[j][i] * elegida[j]);
+                        }
+                        c[i] = CxE;
+                    }
 
+                    imprimirArreglo(c, "State equation");
 
-
-
-                //aquí se actualizan las variables M0 y  demás
-
+                    for (int i = 0; i < M0.length; i++) {
+                        M0[i] = M0[i] + c[i];
+                    }
+                    imprimirArreglo(M0, "Marca actual");
+                    System.out.println("-------------------------------------");
+                } else {
+                    System.out.println("Ya no hay más trnasiciones que no devuelvan negativos");
+                    break;
+                }
                 transActivas.clear();
+                Combinaciones.clear();
             } else {
                 System.out.println("Ya no hay más trnasiciones activas");
+                break;
             }
             ciclo++;
         }
