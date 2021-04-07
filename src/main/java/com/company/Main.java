@@ -1,9 +1,9 @@
 package com.company;
 
 import com.google.common.collect.Sets; // https://github.com/google/guava/wiki
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Vector;
+
+import java.util.*;
+import java.util.stream.IntStream;
 
 public class Main {
 
@@ -70,53 +70,56 @@ public class Main {
             Set<Integer> transActivas = new HashSet<>();
             for (int i = 0; i < tpd.length; i++) {
                 if (tpd[i] > 0) {
-                    transActivas.add(i + 1);
+                    transActivas.add(i);
                 }
             }
-            imprimirSet(transActivas, "Transiciones activas");
-            System.out.println(transActivas.size());
-            Set<Set<Integer>> Combinaciones = new HashSet<>();
+            imprimirSet(transActivas);
+
+            ArrayList<Set<Integer>> Combinaciones = new ArrayList<>();
             if (transActivas.size() > 0){
                 // en este for se añaden todas las combinaciones de transiciones
                 for (int i = 1; i <= transActivas.size(); i++) Combinaciones.addAll(Sets.combinations(transActivas, i)) ;
+                System.out.println(Combinaciones);
 
-                for (int i = 0; i <= Combinaciones.size(); i++) {
-
+                ArrayList<int[]> CombinacionesFiltradas = new ArrayList<>();
+                for (Set<Integer> combinacion: Combinaciones) { // dentro de este loop se calculan las combinaciones que producen negativos
+                    int[] M1 = new int[M0.length];
+                    int[] transTemp = new int[tpd.length];
+                    int[] vectorCxE = new int[pos[0].length];
+                    for (int i = 0; i < tpd.length; i++) {
+                        if (combinacion.contains(i)) transTemp[i]= 1;
+                        else transTemp[i] = 0;
+                    }
+                    for (int i = 0; i < incidence.length; i++) {
+                        int CxE = 0;
+                        for (int j = 0; j < incidence[0].length; j++) {
+                            CxE = CxE + (incidence[j][i] * transTemp[j]);
+                        }
+                        vectorCxE[i] = CxE;
+                    }
+                    for (int i = 0; i < transTemp.length; i++) {
+                        M1[i] = M0[i] + vectorCxE[i];
+                    }
+                    boolean HayNegativo = IntStream.range(0, M1.length).anyMatch(i -> M1[i] < 0);// aqui se checa por negativos en alguna celda del arreglo
+                    if (!HayNegativo) CombinacionesFiltradas.add(M1);// aquí se añaden los arreglos que no producen negativos
                 }
+                 // aquí se elige una transicion de forma aleatoria
 
+
+
+
+                //aquí se actualizan las variables M0 y  demás
+
+                transActivas.clear();
             } else {
                 System.out.println("Ya no hay más trnasiciones activas");
             }
-
-
-
-
-            /* int[] vectorCxE = new int[pos[0].length]; // este vector es la multiplicacion del vectorE por la matriz de incidencia
-            for (int i = 0; i < pos[0].length; i++) {
-                // en este loop se hace la multiplicacion y suma del vector CxE
-                // cada celda del vectorE se multiplica con la celda correspondiente de la columna de la matriz de incidencia
-                int CxE = 0;
-                for (int j = 0; j < incidence[i].length; j++) {
-                    CxE = CxE + (incidence[j][i] * tpd[j]);
-                }
-                vectorCxE[i] = CxE;
-            }
-            imprimirArreglo(vectorCxE, "Vector CxE");*/
-
-            // en este loop se calcula M1 = M0 + Cxe1 y se guarda en el vector M0
-            /* for (int i = 0; i < M0.length; i++) {
-                M0[i] = M0[i] + vectorCxE[i];
-                if (M0[i] < 0) {
-                    M0[i] = 0;
-                }
-            }*/
-            //imprimirArreglo(M0, "vector M1");
             ciclo++;
         }
     }
     // método que imprime cada celda de un vector de un a dimensión
-    private static void imprimirSet(Set<Integer> lista, String nombreSet) {
-        System.out.printf("%s: ", nombreSet);
+    private static void imprimirSet(Set<Integer> lista) {
+        System.out.printf("%s: ", "Transiciones activas");
         for (Integer i: lista){
             System.out.printf("%d ",i);
         }
