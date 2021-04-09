@@ -1,7 +1,6 @@
 package com.company;
 
 import com.google.common.collect.Sets; // https://github.com/google/guava/wiki
-
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -47,7 +46,7 @@ public class Main {
         int[] M0 = {1, 0, 1, 0, 1}; // Esta es la marca inicial de tokens en el modelo, cada celda representa el número de tokens en cada place
         imprimirArreglo(M0, "vector M0");
 
-        final int ciclos = 10;
+        final int ciclos = 10;// el número de ciclos pude ser cambiado a gusto
         int ciclo = 0;
         while (ciclo < ciclos) {
             int[] tpd = new int[pos.length]; // este vector representa las Transiciones que se Pueden Disparar
@@ -74,7 +73,7 @@ public class Main {
                     transActivas.add(i);
                 }
             }
-            imprimirSet(transActivas);
+            //imprimirSet(transActivas);
 
             ArrayList<Set<Integer>> Combinaciones = new ArrayList<>();
             if (transActivas.size() > 0){
@@ -91,13 +90,7 @@ public class Main {
                         if (combinacion.contains(i)) transTemp[i]= 1;
                         else transTemp[i] = 0;
                     }
-                    for (int i = 0; i < incidence.length; i++) {
-                        int CxE = 0;
-                        for (int j = 0; j < incidence[0].length; j++) {
-                            CxE = CxE + (incidence[j][i] * transTemp[j]);
-                        }
-                        vectorCxE[i] = CxE;
-                    }
+                    llenarVectorCxE(incidence, transTemp, vectorCxE);
                     //imprimirArreglo(vectorCxE, "vector CxE temporal");
                     for (int i = 0; i < transTemp.length; i++) {
                         M1[i] = M0[i] + vectorCxE[i];
@@ -106,20 +99,14 @@ public class Main {
                     boolean HayNegativo = IntStream.range(0, M1.length).anyMatch(i -> M1[i] < 0);// aqui se checa por negativos en alguna celda del arreglo
                     if (!HayNegativo) CombinacionesFiltradas.add(transTemp);// aquí se añaden los arreglos que no producen negativos
                 }
-                //for (int[] i : CombinacionesFiltradas) System.out.println(Arrays.toString(i));
+                for (int[] i : CombinacionesFiltradas) System.out.println(Arrays.toString(i));
                  // aquí se elige una transicion de forma aleatoria
                 if (CombinacionesFiltradas.size() > 0) {
-                    int aleatorio = (int) (Math.random() * (CombinacionesFiltradas.size() - 1));
+                    int aleatorio = (int) (Math.random() * (CombinacionesFiltradas.size() ));
                     int[] elegida = CombinacionesFiltradas.get(aleatorio);
-                    System.out.println(aleatorio);
+                    System.out.println("índice de la transición aleatoria elegida: " + aleatorio);
                     int[] c = new int[incidence[0].length];
-                    for (int i = 0; i < incidence.length; i++) {
-                        int CxE = 0;
-                        for (int j = 0; j < incidence[0].length; j++) {
-                            CxE = CxE + (incidence[j][i] * elegida[j]);
-                        }
-                        c[i] = CxE;
-                    }
+                    llenarVectorCxE(incidence, elegida, c);
 
                     imprimirArreglo(c, "State equation");
 
@@ -127,9 +114,9 @@ public class Main {
                         M0[i] = M0[i] + c[i];
                     }
                     imprimirArreglo(M0, "Marca actual");
-                    System.out.println("-------------------------------------");
+                    System.out.println("------------------------------------- fin de ciclo: " + (ciclo + 1));
                 } else {
-                    System.out.println("Ya no hay más trnasiciones que no devuelvan negativos");
+                    System.out.println("Ya no hay más transiciones que no devuelvan negativos");
                     break;
                 }
                 transActivas.clear();
@@ -141,6 +128,17 @@ public class Main {
             ciclo++;
         }
     }
+
+    private static void llenarVectorCxE(int[][] incidence, int[] transTemp, int[] vectorCxE) {
+        for (int i = 0; i < incidence.length; i++) {
+            int CxE = 0;
+            for (int j = 0; j < incidence[0].length; j++) {
+                CxE = CxE + (incidence[j][i] * transTemp[j]);
+            }
+            vectorCxE[i] = CxE;
+        }
+    }
+
     // método que imprime cada celda de un vector de un a dimensión
     private static void imprimirSet(Set<Integer> lista) {
         System.out.printf("%s: ", "Transiciones activas");
