@@ -1,7 +1,10 @@
 package com.company;
 
 import com.google.common.collect.Sets; // https://github.com/google/guava/wiki
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 public class Main {
@@ -45,10 +48,10 @@ public class Main {
 
         int[] M0 = {1, 0, 1, 0, 1}; // Esta es la marca inicial de tokens en el modelo, cada celda representa el número de tokens en cada place
         imprimirArreglo(M0, "vector M0");
-
         final int ciclos = 10;// el número de ciclos pude ser cambiado a gusto
-        int ciclo = 0;
-        while (ciclo < ciclos) {
+        int[][] coleccionMarcas = new int[ciclos][M0.length];
+        int ciclo = 1;
+        while (ciclo <= ciclos) {
             int[] tpd = new int[pos.length]; // este vector representa las Transiciones que se Pueden Disparar
             // en este loop se revisan las transiciones disponibles para dispararse
             for (int i = 0; i < incidence.length; i++) {
@@ -73,7 +76,6 @@ public class Main {
                     transActivas.add(i);
                 }
             }
-            //imprimirSet(transActivas);
 
             ArrayList<Set<Integer>> Combinaciones = new ArrayList<>();
             if (transActivas.size() > 0){
@@ -91,11 +93,9 @@ public class Main {
                         else transTemp[i] = 0;
                     }
                     llenarVectorCxE(incidence, transTemp, vectorCxE);
-                    //imprimirArreglo(vectorCxE, "vector CxE temporal");
                     for (int i = 0; i < transTemp.length; i++) {
                         M1[i] = M0[i] + vectorCxE[i];
                     }
-                    //imprimirArreglo(M1, "M1 temporal");
                     boolean HayNegativo = IntStream.range(0, M1.length).anyMatch(i -> M1[i] < 0);// aqui se checa por negativos en alguna celda del arreglo
                     if (!HayNegativo) CombinacionesFiltradas.add(transTemp);// aquí se añaden los arreglos que no producen negativos
                 }
@@ -112,9 +112,11 @@ public class Main {
 
                     for (int i = 0; i < M0.length; i++) {
                         M0[i] = M0[i] + c[i];
+                        coleccionMarcas[ciclo - 1][i] = M0[i];
                     }
-                    imprimirArreglo(M0, "Marca actual");
-                    System.out.println("------------------------------------- fin de ciclo: " + (ciclo + 1));
+                    String ma = "Marca actual (M" + ciclo + ")";
+                    imprimirArreglo(M0, ma);
+                    System.out.println("------------------------------------- fin de ciclo: " + (ciclo));
                 } else {
                     System.out.println("Ya no hay más transiciones que no devuelvan negativos");
                     break;
@@ -127,6 +129,8 @@ public class Main {
             }
             ciclo++;
         }
+        System.out.println("------ Colección de marcas producidas -------");
+        imprimirMarcas(coleccionMarcas);
     }
 
     private static void llenarVectorCxE(int[][] incidence, int[] transTemp, int[] vectorCxE) {
@@ -165,5 +169,12 @@ public class Main {
             System.out.print("\n");
         }
         System.out.print("\n");
+    }
+
+    private static void imprimirMarcas(int[][] matriz) {
+        for (int i = 0; i < matriz.length; i++) {
+            System.out.printf("M%d: ", i + 1);
+            System.out.println(Arrays.toString(matriz[i]));
+        }
     }
 }
